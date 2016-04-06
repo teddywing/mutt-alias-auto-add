@@ -4,6 +4,13 @@ fn main() {
     let stdin = io::stdin();
     let input: Vec<String> = stdin.lock().lines().map(|line| line.unwrap()).collect();
 
+    for line in &input {
+        if line.starts_with("From: ") {
+            println!("!!!!!!!! {}", line);
+            // run matcher function
+        }
+    }
+
     for l in &input {
         println!("{}", l);
     }
