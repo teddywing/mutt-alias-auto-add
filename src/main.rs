@@ -1,5 +1,13 @@
 use std::io::{self, BufRead};
 
+fn handle_alias(s: &str) {
+    let alias = build_alias(s);
+}
+
+fn build_alias(s: &str) -> String {
+    String::from("String")
+}
+
 fn main() {
     let stdin = io::stdin();
     let input: Vec<String> = stdin.lock().lines().map(|line| line.unwrap()).collect();
@@ -8,6 +16,7 @@ fn main() {
         if line.starts_with("From: ") {
             println!("!!!!!!!! {}", line);
             // run matcher function
+            handle_alias(line);
         }
     }
 
