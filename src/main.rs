@@ -1,5 +1,8 @@
 use std::io::{self, BufRead};
 
+#[cfg(test)]
+mod tests;
+
 fn handle_alias(s: &str) {
     let alias = build_alias(s);
 }
