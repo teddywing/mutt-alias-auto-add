@@ -8,8 +8,6 @@ fn handle_alias(s: &str) {
 }
 
 fn build_alias(s: &str) -> String {
-    // Replace , ' " with nothing
-
     let mut split: Vec<&str> = s.split_whitespace().collect();
 
     // Remove "From: "
