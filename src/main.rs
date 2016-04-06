@@ -8,7 +8,27 @@ fn handle_alias(s: &str) {
 }
 
 fn build_alias(s: &str) -> String {
-    String::from("String")
+    // Replace , ' " with nothing
+
+    let mut split: Vec<&str> = s.split_whitespace().collect();
+
+    // Remove "From: "
+    split.remove(0);
+
+    let mut alias_line = String::from("alias ");
+
+    if split.len() == 1 {
+        alias_line.push_str(&format!("{} ", split[0].to_lowercase()));
+        alias_line.push_str(&split.join(" "))
+    } else if split.len() == 2 {
+        alias_line.push_str(&format!("{} ", split[0].to_lowercase()));
+        alias_line.push_str(&split.join(" "));
+    } else if split.len() > 2 {
+        alias_line.push_str(&format!("{}-{} ", split[split.len() - 2], split[0]).to_lowercase());
+        alias_line.push_str(&split.join(" "));
+    }
+
+    alias_line
 }
 
 fn main() {
