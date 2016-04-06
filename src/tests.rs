@@ -21,4 +21,9 @@ fn test_build_alias() {
         "alias lab-harvard Harvard Innovation Lab <noreply@eventbrite.com>",
         build_alias("From: Harvard Innovation Lab <noreply@eventbrite.com>")
     );
+
+    assert_eq!(
+        "alias celty-ostrulson \"O'Strulson, Celty\" <celty@dollars.co>",
+        build_alias("From: \"O'Strulson, Celty\" <celty@dollars.co>")
+    );
 }

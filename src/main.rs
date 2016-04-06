@@ -16,17 +16,22 @@ fn build_alias(s: &str) -> String {
     split.remove(0);
 
     let mut alias_line = String::from("alias ");
+    let mut alias = String::new();
 
     if split.len() == 1 {
-        alias_line.push_str(&format!("{} ", split[0].to_lowercase()));
-        alias_line.push_str(&split.join(" "))
+        alias = format!("{} ", split[0].to_lowercase());
     } else if split.len() == 2 {
-        alias_line.push_str(&format!("{} ", split[0].to_lowercase()));
-        alias_line.push_str(&split.join(" "));
+        alias = format!("{} ", split[0].to_lowercase());
     } else if split.len() > 2 {
-        alias_line.push_str(&format!("{}-{} ", split[split.len() - 2], split[0]).to_lowercase());
-        alias_line.push_str(&split.join(" "));
+        alias = format!("{}-{} ", split[split.len() - 2], split[0]).to_lowercase();
     }
+
+    alias = alias.replace(',', "");
+    alias = alias.replace('\'', "");
+    alias = alias.replace('"', "");
+
+    alias_line.push_str(&alias);
+    alias_line.push_str(&split.join(" "));
 
     alias_line
 }
