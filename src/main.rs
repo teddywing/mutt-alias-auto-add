@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, BufReader};
+use std::fs::File;
+use std::path::Path;
 
 #[cfg(test)]
 mod tests;
@@ -32,6 +34,26 @@ fn build_alias(s: &str) -> String {
     alias_line.push_str(&split.join(" "));
 
     alias_line
+}
+
+fn is_alias_in_file(alias: &str, file: &str) -> Result<(), io::Error> {
+    let alias_parts: Vec<&str> = alias.split_whitespace().collect();
+
+    let f = try!(File::open(file));
+    let mut file = BufReader::new(&f);
+    for line in file.lines() {
+        let line = line.unwrap();
+        let split: Vec<&str> = line.split_whitespace().collect();
+
+        // if email is in alias file
+        // return true
+
+        if split[1].starts_with(alias_parts[1]) {
+            println!("booya");
+        }
+    }
+
+    Ok(())
 }
 
 fn main() {

@@ -1,4 +1,4 @@
-use super::build_alias;
+use super::{build_alias, is_alias_in_file};
 
 #[test]
 fn build_alias_with_only_email() {
@@ -37,5 +37,14 @@ fn build_alias_with_special_characters() {
     assert_eq!(
         "alias celty-ostrulson \"O'Strulson, Celty\" <celty@dollars.co>",
         build_alias("From: \"O'Strulson, Celty\" <celty@dollars.co>")
+    );
+}
+
+
+#[test]
+fn is_alias_in_file_finds_a_match() {
+    is_alias_in_file(
+        "alias farnsworth-hubert Hubert Farnsworth <professor@planetexpress.com>",
+        "./testdata/aliases"
     );
 }
