@@ -5,6 +5,52 @@ use std::path::Path;
 #[cfg(test)]
 mod tests;
 
+struct Alias {
+    alias: String,
+    name: String,
+    email: String,
+}
+
+impl Alias {
+    fn new(email: &str) -> Alias {
+        let mut split: Vec<&str> = email.split_whitespace().collect();
+
+        // Remove "From: "
+        split.remove(0);
+
+        let mut alias = String::new();
+        let mut name = String::new();
+        let mut email = String::new();
+
+        if split.len() == 1 {
+            alias = split[0].to_lowercase().to_string();
+            email = split[0].to_string();
+        } else if split.len() == 2 {
+            alias = split[0].to_lowercase().to_string();
+            name = split[0].to_string();
+            email = split[1].to_string();
+        } else if split.len() > 2 {
+            alias = format!("{}-{}", split[split.len() - 2], split[0]).to_lowercase().to_string();
+            name = split[0..(split.len() - 1)].join(" ");
+            email = split[split.len() - 1].to_string();
+        }
+
+        alias = alias.replace(',', "");
+        alias = alias.replace('\'', "");
+        alias = alias.replace('"', "");
+
+        Alias { alias: alias, name: name, email: email }
+    }
+
+    fn to_string(&self) -> String {
+        if self.name.is_empty() {
+            format!("alias {} {}", self.alias, self.email)
+        } else {
+            format!("alias {} {} {}", self.alias, self.name, self.email)
+        }
+    }
+}
+
 fn handle_alias(s: &str) {
     let alias = build_alias(s);
 }
