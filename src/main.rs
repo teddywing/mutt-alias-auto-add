@@ -41,7 +41,11 @@ impl Alias {
     }
 
     fn to_string(&self) -> String {
-        format!("alias {} {} {}", self.alias, self.name, self.email)
+        if self.name.is_empty() {
+            format!("alias {} {}", self.alias, self.email)
+        } else {
+            format!("alias {} {} {}", self.alias, self.name, self.email)
+        }
     }
 }
 
