@@ -83,7 +83,7 @@ fn build_alias(s: &str) -> String {
 
 fn is_alias_in_file(alias: &Alias, file: &str) -> Result<(), io::Error> {
     let f = try!(File::open(file));
-    let mut file = BufReader::new(&f);
+    let file = BufReader::new(&f);
     for line in file.lines() {
         let line = line.unwrap();
         let split: Vec<&str> = line.split_whitespace().collect();
