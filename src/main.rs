@@ -1,6 +1,5 @@
 use std::io::{self, BufRead, BufReader};
 use std::fs::File;
-use std::path::Path;
 
 #[cfg(test)]
 mod tests;
