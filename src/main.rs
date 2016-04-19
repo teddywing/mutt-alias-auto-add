@@ -82,9 +82,7 @@ fn build_alias(s: &str) -> String {
     alias_line
 }
 
-fn is_alias_in_file(alias: &str, file: &str) -> Result<(), io::Error> {
-    let alias_parts: Vec<&str> = alias.split_whitespace().collect();
-
+fn is_alias_in_file(alias: &Alias, file: &str) -> Result<(), io::Error> {
     let f = try!(File::open(file));
     let mut file = BufReader::new(&f);
     for line in file.lines() {
@@ -94,7 +92,7 @@ fn is_alias_in_file(alias: &str, file: &str) -> Result<(), io::Error> {
         // if email is in alias file
         // return true
 
-        if split[1].starts_with(alias_parts[1]) {
+        if split[1].starts_with(&alias.alias) {
             println!("booya");
         }
     }

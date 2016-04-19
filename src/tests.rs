@@ -44,7 +44,11 @@ fn new_alias_with_special_characters() {
 #[test]
 fn is_alias_in_file_finds_a_match() {
     is_alias_in_file(
-        "alias farnsworth-hubert Hubert Farnsworth <professor@planetexpress.com>",
+        &Alias {
+            alias: "farnsworth-hubert".to_string(),
+            name: "Hubert Farnsworth".to_string(),
+            email: "<professor@planetexpress.com>".to_string()
+        },
         "./testdata/aliases"
     );
 }
