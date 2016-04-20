@@ -1,4 +1,4 @@
-use super::{Alias, is_alias_in_file};
+use super::{Alias, find_alias_in_file};
 
 #[test]
 fn new_alias_with_only_email() {
@@ -42,8 +42,8 @@ fn new_alias_with_special_characters() {
 
 
 #[test]
-fn is_alias_in_file_finds_a_match() {
-    is_alias_in_file(
+fn find_alias_in_file_finds_a_match() {
+    find_alias_in_file(
         &Alias {
             alias: "farnsworth-hubert".to_owned(),
             name: "Hubert Farnsworth".to_owned(),

@@ -81,7 +81,7 @@ fn build_alias(s: &str) -> String {
     alias_line
 }
 
-fn is_alias_in_file(alias: &Alias, file: &str) -> Result<(), io::Error> {
+fn find_alias_in_file(alias: &Alias, file: &str) -> Result<(), io::Error> {
     let f = try!(File::open(file));
     let file = BufReader::new(&f);
     for line in file.lines() {
