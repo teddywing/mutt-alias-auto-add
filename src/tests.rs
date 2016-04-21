@@ -55,3 +55,18 @@ fn find_alias_in_file_email_already_exists() {
         )
     );
 }
+
+#[test]
+fn find_alias_in_file_alias_is_new() {
+    assert_eq!(
+        Err(AliasSearchError::NotFound),
+        find_alias_in_file(
+            &Alias {
+                alias: "fry-philip".to_owned(),
+                name: "Philip Fry".to_owned(),
+                email: "<fry@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
+    );
+}
