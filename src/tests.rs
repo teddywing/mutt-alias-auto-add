@@ -70,3 +70,21 @@ fn find_alias_in_file_alias_is_new() {
         )
     );
 }
+
+#[test]
+fn find_alias_in_file_finds_a_match() {
+    assert_eq!(
+        Ok(vec![
+            "alias farnsworth-hubert Hubert Farnsworth <professor@planetexpress.com>".to_owned(),
+            "alias farnsworth-hubert-2 Hubert Farnsworth <davincifan@planetexpress.com>".to_owned()
+        ]),
+        find_alias_in_file(
+            &Alias {
+                alias: "farnsworth-hubert".to_owned(),
+                name: "Hubert Farnsworth".to_owned(),
+                email: "<goodnewseveryone@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
+    );
+}
