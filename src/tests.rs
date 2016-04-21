@@ -75,8 +75,8 @@ fn find_alias_in_file_alias_is_new() {
 fn find_alias_in_file_finds_a_match() {
     assert_eq!(
         Ok(vec![
-            "alias farnsworth-hubert Hubert Farnsworth <professor@planetexpress.com>".to_owned(),
-            "alias farnsworth-hubert-2 Hubert Farnsworth <davincifan@planetexpress.com>".to_owned()
+            "farnsworth-hubert".to_owned(),
+            "farnsworth-hubert-2".to_owned()
         ]),
         find_alias_in_file(
             &Alias {

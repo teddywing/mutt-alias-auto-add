@@ -102,7 +102,7 @@ fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSea
         }
 
         if split[1].starts_with(&alias.alias) {
-            matches.push(line.to_owned());
+            matches.push(split[1].to_owned());
         }
     }
 
