@@ -1,4 +1,4 @@
-use super::{Alias, find_alias_in_file};
+use super::{Alias, AliasSearchError, find_alias_in_file};
 
 #[test]
 fn new_alias_with_only_email() {
@@ -42,13 +42,16 @@ fn new_alias_with_special_characters() {
 
 
 #[test]
-fn find_alias_in_file_finds_a_match() {
-    find_alias_in_file(
-        &Alias {
-            alias: "farnsworth-hubert".to_owned(),
-            name: "Hubert Farnsworth".to_owned(),
-            email: "<professor@planetexpress.com>".to_owned()
-        },
-        "./testdata/aliases"
+fn find_alias_in_file_email_already_exists() {
+    assert_eq!(
+        Err(AliasSearchError::EmailExists),
+        find_alias_in_file(
+            &Alias {
+                alias: "farnsworth-hubert".to_owned(),
+                name: "Hubert Farnsworth".to_owned(),
+                email: "<professor@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
     );
 }

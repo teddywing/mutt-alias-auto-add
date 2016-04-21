@@ -97,6 +97,26 @@ impl From<io::Error> for AliasSearchError {
     }
 }
 
+#[cfg(test)]
+impl PartialEq<AliasSearchError> for AliasSearchError {
+    fn eq(&self, other: &AliasSearchError) -> bool {
+        match *self {
+            AliasSearchError::NotFound => match *other {
+                AliasSearchError::NotFound => true,
+                _ => false,
+            },
+            AliasSearchError::EmailExists => match *other {
+                AliasSearchError::EmailExists => true,
+                _ => false,
+            },
+            AliasSearchError::Io(_) => match *other {
+                AliasSearchError::Io(_) => true,
+                _ => false,
+            },
+        }
+    }
+}
+
 fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSearchError> {
     let mut matches = Vec::new();
     let f = try!(File::open(file));
