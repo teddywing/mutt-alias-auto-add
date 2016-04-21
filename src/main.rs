@@ -51,34 +51,6 @@ impl Alias {
 }
 
 fn handle_alias(s: &str) {
-    let alias = build_alias(s);
-}
-
-fn build_alias(s: &str) -> String {
-    let mut split: Vec<&str> = s.split_whitespace().collect();
-
-    // Remove "From: "
-    split.remove(0);
-
-    let mut alias_line = String::from("alias ");
-    let mut alias = String::new();
-
-    if split.len() == 1 {
-        alias = format!("{} ", split[0].to_lowercase());
-    } else if split.len() == 2 {
-        alias = format!("{} ", split[0].to_lowercase());
-    } else if split.len() > 2 {
-        alias = format!("{}-{} ", split[split.len() - 2], split[0]).to_lowercase();
-    }
-
-    alias = alias.replace(',', "");
-    alias = alias.replace('\'', "");
-    alias = alias.replace('"', "");
-
-    alias_line.push_str(&alias);
-    alias_line.push_str(&split.join(" "));
-
-    alias_line
 }
 
 #[derive(Debug)]
