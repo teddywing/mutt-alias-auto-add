@@ -81,22 +81,44 @@ fn build_alias(s: &str) -> String {
     alias_line
 }
 
-fn find_alias_in_file(alias: &Alias, file: &str) -> Result<(), io::Error> {
+#[derive(Debug)]
+enum AliasSearchError {
+    NotFound,
+    EmailExists,
+    Io(io::Error),
+}
+
+// impl fmt::Display for AliasSearchError {}
+// impl error::Error for AliasSearchError {}
+
+impl From<io::Error> for AliasSearchError {
+    fn from(err: io::Error) -> AliasSearchError {
+        AliasSearchError::Io(err)
+    }
+}
+
+fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSearchError> {
+    let mut matches = Vec::new();
     let f = try!(File::open(file));
     let file = BufReader::new(&f);
     for line in file.lines() {
-        let line = line.unwrap();
+        let line = try!(line);
         let split: Vec<&str> = line.split_whitespace().collect();
 
-        // if email is in alias file
-        // return true
+        if line.contains(&alias.email) {
+            return Err(AliasSearchError::EmailExists)
+        }
 
         if split[1].starts_with(&alias.alias) {
-            println!("booya");
+            matches.push(line.to_owned());
         }
     }
 
-    Ok(())
+    if matches.is_empty() {
+        Err(AliasSearchError::NotFound)
+    } else {
+        Ok(matches)
+    }
 }
 
 fn main() {
