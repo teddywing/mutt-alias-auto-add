@@ -136,10 +136,14 @@ fn main() {
 
     for line in stdin.lock().lines() {
         let line = line.unwrap();
+
+        // Write the message to STDOUT so that it can be properly read by Mutt
+        write!(io::stdout(), "{}\n", line).unwrap();
+
         if line.starts_with("From: ") {
             match write_alias(line) {
-                Ok(_)  => return,
-                Err(AliasSearchError::NotFound) | Err(AliasSearchError::EmailExists) => return,
+                Ok(_)  => continue,
+                Err(AliasSearchError::NotFound) | Err(AliasSearchError::EmailExists) => continue,
                 Err(e) => panic!(e),
             };
         }
