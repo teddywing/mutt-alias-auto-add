@@ -130,13 +130,14 @@ fn alias_write_to_file_must_write_given_alias_to_file() {
     let alias = update_alias_id_sample_alias();
 
     let test_file = "./testdata/write_to_file";
-    File::create(test_file).unwrap();
+    fs::copy("./testdata/aliases", test_file).unwrap();
     alias.write_to_file(test_file).unwrap();
 
     let mut f = File::open(test_file).unwrap();
     let mut file_contents = String::new();
     f.read_to_string(&mut file_contents).unwrap();
+    let file_contents: Vec<&str> = file_contents.split('\n').collect();
     fs::remove_file(test_file).unwrap();
 
-    assert_eq!(alias.to_string(), file_contents);
+    assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
 }

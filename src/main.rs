@@ -51,8 +51,8 @@ impl Alias {
     }
 
     fn write_to_file<P: AsRef<Path>>(&self, file: P) -> Result<(), io::Error> {
-        let mut f = try!(OpenOptions::new().write(true).open(file));
-        try!(f.write_all(self.to_string().as_bytes()));
+        let mut f = try!(OpenOptions::new().append(true).open(file));
+        try!(f.write_all(format!("{}\n", self.to_string()).as_bytes()));
         Ok(())
     }
 
