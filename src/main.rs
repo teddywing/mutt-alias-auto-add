@@ -1,4 +1,6 @@
+use std::error;
 use std::io::{self, BufRead, BufReader, Write};
+use std::fmt;
 use std::fs::{File, OpenOptions};
 use std::path::Path;
 
@@ -78,8 +80,32 @@ enum AliasSearchError {
     Io(io::Error),
 }
 
-// impl fmt::Display for AliasSearchError {}
-// impl error::Error for AliasSearchError {}
+impl fmt::Display for AliasSearchError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AliasSearchError::NotFound => write!(f, ""),
+            AliasSearchError::EmailExists => write!(f, ""),
+            AliasSearchError::Io(ref err) => write!(f, "IO error: {}", err),
+        }
+    }
+}
+
+impl error::Error for AliasSearchError {
+    fn description(&self) -> &str {
+        match *self {
+            AliasSearchError::NotFound => "Alias could not be found in aliases file",
+            AliasSearchError::EmailExists => "Email already exists in aliases file",
+            AliasSearchError::Io(ref err) => err.description(),
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match *self {
+            AliasSearchError::Io(ref err) => Some(err),
+            _ => None,
+        }
+    }
+}
 
 impl From<io::Error> for AliasSearchError {
     fn from(err: io::Error) -> AliasSearchError {
@@ -144,7 +170,7 @@ fn main() {
             match write_alias(line) {
                 Ok(_)  => continue,
                 Err(AliasSearchError::NotFound) | Err(AliasSearchError::EmailExists) => continue,
-                Err(e) => panic!(e),
+                Err(e) => io::stderr().write(e.to_string().as_bytes()).ok(),
             };
         }
     }
