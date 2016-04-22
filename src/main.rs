@@ -1,4 +1,4 @@
-use std::error;
+use std::error::{self, Error};
 use std::io::{self, BufRead, BufReader, Write};
 use std::fmt;
 use std::fs::{File, OpenOptions};
@@ -83,9 +83,9 @@ enum AliasSearchError {
 impl fmt::Display for AliasSearchError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            AliasSearchError::NotFound => write!(f, ""),
-            AliasSearchError::EmailExists => write!(f, ""),
-            AliasSearchError::Io(ref err) => write!(f, "IO error: {}", err),
+            AliasSearchError::NotFound => writeln!(f, "{}", self.description()),
+            AliasSearchError::EmailExists => writeln!(f, "{}", self.description()),
+            AliasSearchError::Io(ref err) => writeln!(f, "IO error: {}", err),
         }
     }
 }
@@ -169,7 +169,8 @@ fn main() {
         if line.starts_with("From: ") {
             match write_alias(line) {
                 Ok(_)  => continue,
-                Err(AliasSearchError::NotFound) | Err(AliasSearchError::EmailExists) => continue,
+                Err(e @ AliasSearchError::NotFound) | Err(e @ AliasSearchError::EmailExists) =>
+                    io::stderr().write(e.to_string().as_bytes()).ok(),
                 Err(e) => io::stderr().write(e.to_string().as_bytes()).ok(),
             };
         }
