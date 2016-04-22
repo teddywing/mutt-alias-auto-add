@@ -88,3 +88,35 @@ fn find_alias_in_file_finds_a_match() {
         )
     );
 }
+
+
+#[test]
+fn update_alias_id_does_nothing_given_an_empty_vector() {
+    let alias_identifier = "hooves-derpy";
+    let mut alias = Alias {
+        alias: alias_identifier.to_owned(),
+        name: "Derpy Hooves".to_owned(),
+        email: "derpyhooves@postmaster.pv".to_owned()
+    };
+    alias.update_alias_id(vec![]);
+
+    assert_eq!(alias_identifier, &alias.alias);
+}
+
+#[test]
+fn update_alias_id_increments_alias() {
+    let alias_identifier = "hooves-derpy";
+    let mut alias = Alias {
+        alias: alias_identifier.to_owned(),
+        name: "Derpy Hooves".to_owned(),
+        email: "derpyhooves@postmaster.pv".to_owned()
+    };
+    alias.update_alias_id(vec![
+        "hooves-derpy".to_owned(),
+        "hooves-derpy-2".to_owned(),
+        "hooves-derpy-3".to_owned(),
+        "hooves-derpy-4".to_owned()
+    ]);
+
+    assert_eq!("hooves-derpy-5", &alias.alias);
+}

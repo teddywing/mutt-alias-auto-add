@@ -48,6 +48,12 @@ impl Alias {
             format!("alias {} {} {}", self.alias, self.name, self.email)
         }
     }
+
+    fn update_alias_id(&mut self, similar_aliases: Vec<String>) {
+        if !similar_aliases.is_empty() {
+            self.alias = format!("{}-{}", self.alias, similar_aliases.len() + 1);
+        }
+    }
 }
 
 fn handle_alias(s: &str) {
