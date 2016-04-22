@@ -1,4 +1,6 @@
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, BufReader, Write};
+use std::fs::{File, OpenOptions};
+use std::path::Path;
 
 #[cfg(test)]
 mod tests;
@@ -47,37 +49,81 @@ impl Alias {
             format!("alias {} {} {}", self.alias, self.name, self.email)
         }
     }
+
+    fn write_to_file<P: AsRef<Path>>(&self, file: P) -> Result<(), io::Error> {
+        let mut f = try!(OpenOptions::new().append(true).open(file));
+        try!(f.write_all(format!("{}\n", self.to_string()).as_bytes()));
+        Ok(())
+    }
+
+    fn update_alias_id(&mut self, similar_aliases: Vec<String>) {
+        if !similar_aliases.is_empty() {
+            self.alias = format!("{}-{}", self.alias, similar_aliases.len() + 1);
+        }
+    }
 }
 
 fn handle_alias(s: &str) {
-    let alias = build_alias(s);
 }
 
-fn build_alias(s: &str) -> String {
-    let mut split: Vec<&str> = s.split_whitespace().collect();
+#[derive(Debug)]
+enum AliasSearchError {
+    NotFound,
+    EmailExists,
+    Io(io::Error),
+}
 
-    // Remove "From: "
-    split.remove(0);
+// impl fmt::Display for AliasSearchError {}
+// impl error::Error for AliasSearchError {}
 
-    let mut alias_line = String::from("alias ");
-    let mut alias = String::new();
+impl From<io::Error> for AliasSearchError {
+    fn from(err: io::Error) -> AliasSearchError {
+        AliasSearchError::Io(err)
+    }
+}
 
-    if split.len() == 1 {
-        alias = format!("{} ", split[0].to_lowercase());
-    } else if split.len() == 2 {
-        alias = format!("{} ", split[0].to_lowercase());
-    } else if split.len() > 2 {
-        alias = format!("{}-{} ", split[split.len() - 2], split[0]).to_lowercase();
+#[cfg(test)]
+impl PartialEq<AliasSearchError> for AliasSearchError {
+    fn eq(&self, other: &AliasSearchError) -> bool {
+        match *self {
+            AliasSearchError::NotFound => match *other {
+                AliasSearchError::NotFound => true,
+                _ => false,
+            },
+            AliasSearchError::EmailExists => match *other {
+                AliasSearchError::EmailExists => true,
+                _ => false,
+            },
+            AliasSearchError::Io(_) => match *other {
+                AliasSearchError::Io(_) => true,
+                _ => false,
+            },
+        }
+    }
+}
+
+fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSearchError> {
+    let mut matches = Vec::new();
+    let f = try!(File::open(file));
+    let file = BufReader::new(&f);
+    for line in file.lines() {
+        let line = try!(line);
+        let split: Vec<&str> = line.split_whitespace().collect();
+
+        if line.contains(&alias.email) {
+            return Err(AliasSearchError::EmailExists)
+        }
+
+        if split[1].starts_with(&alias.alias) {
+            matches.push(split[1].to_owned());
+        }
     }
 
-    alias = alias.replace(',', "");
-    alias = alias.replace('\'', "");
-    alias = alias.replace('"', "");
-
-    alias_line.push_str(&alias);
-    alias_line.push_str(&split.join(" "));
-
-    alias_line
+    if matches.is_empty() {
+        Err(AliasSearchError::NotFound)
+    } else {
+        Ok(matches)
+    }
 }
 
 fn main() {

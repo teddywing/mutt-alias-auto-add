@@ -1,4 +1,7 @@
-use super::Alias;
+use std::fs::{self, File};
+use std::io::Read;
+
+use super::{Alias, AliasSearchError, find_alias_in_file};
 
 #[test]
 fn new_alias_with_only_email() {
@@ -38,4 +41,103 @@ fn new_alias_with_special_characters() {
         "alias celty-ostrulson \"O'Strulson, Celty\" <celty@dollars.co>",
         Alias::new("From: \"O'Strulson, Celty\" <celty@dollars.co>").to_string()
     );
+}
+
+
+#[test]
+fn find_alias_in_file_email_already_exists() {
+    assert_eq!(
+        Err(AliasSearchError::EmailExists),
+        find_alias_in_file(
+            &Alias {
+                alias: "farnsworth-hubert".to_owned(),
+                name: "Hubert Farnsworth".to_owned(),
+                email: "<professor@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
+    );
+}
+
+#[test]
+fn find_alias_in_file_alias_is_new() {
+    assert_eq!(
+        Err(AliasSearchError::NotFound),
+        find_alias_in_file(
+            &Alias {
+                alias: "fry-philip".to_owned(),
+                name: "Philip Fry".to_owned(),
+                email: "<fry@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
+    );
+}
+
+#[test]
+fn find_alias_in_file_finds_a_match() {
+    assert_eq!(
+        Ok(vec![
+            "farnsworth-hubert".to_owned(),
+            "farnsworth-hubert-2".to_owned()
+        ]),
+        find_alias_in_file(
+            &Alias {
+                alias: "farnsworth-hubert".to_owned(),
+                name: "Hubert Farnsworth".to_owned(),
+                email: "<goodnewseveryone@planetexpress.com>".to_owned()
+            },
+            "./testdata/aliases"
+        )
+    );
+}
+
+
+const update_alias_id_alias_identifier: &'static str = "hooves-derpy";
+
+fn update_alias_id_sample_alias() -> Alias {
+    Alias {
+        alias: update_alias_id_alias_identifier.to_owned(),
+        name: "Derpy Hooves".to_owned(),
+        email: "derpyhooves@postmaster.pv".to_owned()
+    }
+}
+
+#[test]
+fn update_alias_id_does_nothing_given_an_empty_vector() {
+    let mut alias = update_alias_id_sample_alias();
+    alias.update_alias_id(vec![]);
+
+    assert_eq!(update_alias_id_alias_identifier, &alias.alias);
+}
+
+#[test]
+fn update_alias_id_increments_alias() {
+    let mut alias = update_alias_id_sample_alias();
+    alias.update_alias_id(vec![
+        "hooves-derpy".to_owned(),
+        "hooves-derpy-2".to_owned(),
+        "hooves-derpy-3".to_owned(),
+        "hooves-derpy-4".to_owned()
+    ]);
+
+    assert_eq!("hooves-derpy-5", &alias.alias);
+}
+
+
+#[test]
+fn alias_write_to_file_must_write_given_alias_to_file() {
+    let alias = update_alias_id_sample_alias();
+
+    let test_file = "./testdata/write_to_file";
+    fs::copy("./testdata/aliases", test_file).unwrap();
+    alias.write_to_file(test_file).unwrap();
+
+    let mut f = File::open(test_file).unwrap();
+    let mut file_contents = String::new();
+    f.read_to_string(&mut file_contents).unwrap();
+    let file_contents: Vec<&str> = file_contents.split('\n').collect();
+    fs::remove_file(test_file).unwrap();
+
+    assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
 }
