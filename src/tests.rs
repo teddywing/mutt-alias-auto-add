@@ -90,27 +90,27 @@ fn find_alias_in_file_finds_a_match() {
 }
 
 
-#[test]
-fn update_alias_id_does_nothing_given_an_empty_vector() {
-    let alias_identifier = "hooves-derpy";
-    let mut alias = Alias {
-        alias: alias_identifier.to_owned(),
+const update_alias_id_alias_identifier: &'static str = "hooves-derpy";
+
+fn update_alias_id_sample_alias() -> Alias {
+    Alias {
+        alias: update_alias_id_alias_identifier.to_owned(),
         name: "Derpy Hooves".to_owned(),
         email: "derpyhooves@postmaster.pv".to_owned()
-    };
+    }
+}
+
+#[test]
+fn update_alias_id_does_nothing_given_an_empty_vector() {
+    let mut alias = update_alias_id_sample_alias();
     alias.update_alias_id(vec![]);
 
-    assert_eq!(alias_identifier, &alias.alias);
+    assert_eq!(update_alias_id_alias_identifier, &alias.alias);
 }
 
 #[test]
 fn update_alias_id_increments_alias() {
-    let alias_identifier = "hooves-derpy";
-    let mut alias = Alias {
-        alias: alias_identifier.to_owned(),
-        name: "Derpy Hooves".to_owned(),
-        email: "derpyhooves@postmaster.pv".to_owned()
-    };
+    let mut alias = update_alias_id_sample_alias();
     alias.update_alias_id(vec![
         "hooves-derpy".to_owned(),
         "hooves-derpy-2".to_owned(),
