@@ -93,11 +93,11 @@ fn find_alias_in_file_finds_a_match() {
 }
 
 
-const update_alias_id_alias_identifier: &'static str = "hooves-derpy";
+const UPDATE_ALIAS_ID_ALIAS_IDENTIFIER: &'static str = "hooves-derpy";
 
 fn update_alias_id_sample_alias() -> Alias {
     Alias {
-        alias: update_alias_id_alias_identifier.to_owned(),
+        alias: UPDATE_ALIAS_ID_ALIAS_IDENTIFIER.to_owned(),
         name: "Derpy Hooves".to_owned(),
         email: "derpyhooves@postmaster.pv".to_owned()
     }
@@ -108,7 +108,7 @@ fn update_alias_id_does_nothing_given_an_empty_vector() {
     let mut alias = update_alias_id_sample_alias();
     alias.update_alias_id(vec![]);
 
-    assert_eq!(update_alias_id_alias_identifier, &alias.alias);
+    assert_eq!(UPDATE_ALIAS_ID_ALIAS_IDENTIFIER, &alias.alias);
 }
 
 #[test]
