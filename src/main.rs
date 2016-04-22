@@ -63,7 +63,12 @@ impl Alias {
     }
 }
 
-fn handle_alias(s: &str) {
+fn write_alias(from: String) -> Result<(), AliasSearchError> {
+    let mut alias = Alias::new(&from);
+    let similar_aliases = try!(find_alias_in_file(&alias, "./testaliases"));
+    alias.update_alias_id(similar_aliases);
+    try!(alias.write_to_file("./testaliases"));
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -128,17 +133,15 @@ fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSea
 
 fn main() {
     let stdin = io::stdin();
-    let input: Vec<String> = stdin.lock().lines().map(|line| line.unwrap()).collect();
 
-    for line in &input {
+    for line in stdin.lock().lines() {
+        let line = line.unwrap();
         if line.starts_with("From: ") {
-            println!("!!!!!!!! {}", line);
-            // run matcher function
-            handle_alias(line);
+            match write_alias(line) {
+                Ok(_)  => return,
+                Err(AliasSearchError::NotFound) | Err(AliasSearchError::EmailExists) => return,
+                Err(e) => panic!(e),
+            };
         }
-    }
-
-    for l in &input {
-        println!("{}", l);
     }
 }
