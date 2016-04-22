@@ -1,3 +1,6 @@
+use std::fs::{self, File};
+use std::io::Read;
+
 use super::{Alias, AliasSearchError, find_alias_in_file};
 
 #[test]
@@ -119,4 +122,21 @@ fn update_alias_id_increments_alias() {
     ]);
 
     assert_eq!("hooves-derpy-5", &alias.alias);
+}
+
+
+#[test]
+fn alias_write_to_file_must_write_given_alias_to_file() {
+    let alias = update_alias_id_sample_alias();
+
+    let test_file = "./testdata/write_to_file";
+    File::create(test_file).unwrap();
+    alias.write_to_file(test_file).unwrap();
+
+    let mut f = File::open(test_file).unwrap();
+    let mut file_contents = String::new();
+    f.read_to_string(&mut file_contents).unwrap();
+    fs::remove_file(test_file).unwrap();
+
+    assert_eq!(alias.to_string(), file_contents);
 }

@@ -1,5 +1,6 @@
-use std::io::{self, BufRead, BufReader};
-use std::fs::File;
+use std::io::{self, BufRead, BufReader, Write};
+use std::fs::{File, OpenOptions};
+use std::path::Path;
 
 #[cfg(test)]
 mod tests;
@@ -47,6 +48,12 @@ impl Alias {
         } else {
             format!("alias {} {} {}", self.alias, self.name, self.email)
         }
+    }
+
+    fn write_to_file<P: AsRef<Path>>(&self, file: P) -> Result<(), io::Error> {
+        let mut f = try!(OpenOptions::new().write(true).open(file));
+        try!(f.write_all(self.to_string().as_bytes()));
+        Ok(())
     }
 
     fn update_alias_id(&mut self, similar_aliases: Vec<String>) {
