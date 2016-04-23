@@ -1,3 +1,7 @@
+extern crate getopts;
+
+use getopts::Options;
+use std::env;
 use std::error::{self, Error};
 use std::io::{self, BufRead, BufReader, Write};
 use std::fmt;
@@ -65,11 +69,11 @@ impl Alias {
     }
 }
 
-fn write_alias(from: String) -> Result<(), AliasSearchError> {
+fn write_alias<P: AsRef<Path>>(from: String, file: P) -> Result<(), AliasSearchError> {
     let mut alias = Alias::new(&from);
-    let similar_aliases = try!(find_alias_in_file(&alias, "./testaliases"));
+    let similar_aliases = try!(find_alias_in_file(&alias, &file));
     alias.update_alias_id(similar_aliases);
-    try!(alias.write_to_file("./testaliases"));
+    try!(alias.write_to_file(&file));
     Ok(())
 }
 
@@ -133,7 +137,7 @@ impl PartialEq<AliasSearchError> for AliasSearchError {
     }
 }
 
-fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSearchError> {
+fn find_alias_in_file<P: AsRef<Path>>(alias: &Alias, file: P) -> Result<Vec<String>, AliasSearchError> {
     let mut matches = Vec::new();
     let f = try!(File::open(file));
     let file = BufReader::new(&f);
@@ -157,7 +161,27 @@ fn find_alias_in_file(alias: &Alias, file: &str) -> Result<Vec<String>, AliasSea
     }
 }
 
+fn print_usage(program: &str) {
+    println!("Usage: {} FILE", program);
+}
+
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let program = args[0].clone();
+    let opts = Options::new();
+
+    let opt_matches = match opts.parse(&args[1..]) {
+        Ok(m) => m,
+        Err(f) => panic!(f.to_string()),
+    };
+
+    let file = if !opt_matches.free.is_empty() {
+        opt_matches.free[0].clone()
+    } else {
+        print_usage(&program);
+        return;
+    };
+
     let stdin = io::stdin();
 
     for line in stdin.lock().lines() {
@@ -167,7 +191,7 @@ fn main() {
         println!("{}", line);
 
         if line.starts_with("From: ") {
-            match write_alias(line) {
+            match write_alias(line, &file) {
                 Ok(_)  => continue,
                 Err(e @ AliasSearchError::NotFound) | Err(e @ AliasSearchError::EmailExists) =>
                     io::stderr().write(e.to_string().as_bytes()).ok(),
