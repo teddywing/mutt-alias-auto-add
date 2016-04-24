@@ -53,6 +53,30 @@ impl Alias {
         }
     }
 
+    fn find_in_file<P: AsRef<Path>>(&self, file: P) -> Result<Vec<String>, AliasSearchError> {
+        let mut matches = Vec::new();
+        let f = try!(File::open(file));
+        let file = BufReader::new(&f);
+        for line in file.lines() {
+            let line = try!(line);
+            let split: Vec<&str> = line.split_whitespace().collect();
+
+            if line.contains(&self.email) {
+                return Err(AliasSearchError::EmailExists)
+            }
+
+            if split[1].starts_with(&self.alias) {
+                matches.push(split[1].to_owned());
+            }
+        }
+
+        if matches.is_empty() {
+            Err(AliasSearchError::NotFound)
+        } else {
+            Ok(matches)
+        }
+    }
+
     fn write_to_file<P: AsRef<Path>>(&self, file: P) -> Result<(), io::Error> {
         let mut f = try!(OpenOptions::new().append(true).open(file));
         try!(f.write_all(format!("{}\n", self.to_string()).as_bytes()));
@@ -68,7 +92,7 @@ impl Alias {
 
 fn write_alias<P: AsRef<Path>>(from: String, file: P) -> Result<(), AliasSearchError> {
     let mut alias = Alias::new(&from);
-    let similar_aliases = try!(find_alias_in_file(&alias, &file));
+    let similar_aliases = try!(alias.find_in_file(&file));
     alias.update_alias_id(similar_aliases);
     try!(alias.write_to_file(&file));
     Ok(())
@@ -131,30 +155,6 @@ impl PartialEq<AliasSearchError> for AliasSearchError {
                 _ => false,
             },
         }
-    }
-}
-
-fn find_alias_in_file<P: AsRef<Path>>(alias: &Alias, file: P) -> Result<Vec<String>, AliasSearchError> {
-    let mut matches = Vec::new();
-    let f = try!(File::open(file));
-    let file = BufReader::new(&f);
-    for line in file.lines() {
-        let line = try!(line);
-        let split: Vec<&str> = line.split_whitespace().collect();
-
-        if line.contains(&alias.email) {
-            return Err(AliasSearchError::EmailExists)
-        }
-
-        if split[1].starts_with(&alias.alias) {
-            matches.push(split[1].to_owned());
-        }
-    }
-
-    if matches.is_empty() {
-        Err(AliasSearchError::NotFound)
-    } else {
-        Ok(matches)
     }
 }
 

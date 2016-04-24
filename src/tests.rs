@@ -1,7 +1,7 @@
 use std::fs::{self, File};
 use std::io::Read;
 
-use super::{Alias, AliasSearchError, find_alias_in_file};
+use super::{Alias, AliasSearchError};
 
 #[test]
 fn new_alias_with_only_email() {
@@ -45,50 +45,47 @@ fn new_alias_with_special_characters() {
 
 
 #[test]
-fn find_alias_in_file_email_already_exists() {
+fn alias_find_in_file_email_already_exists() {
+    let alias = Alias {
+        alias: "farnsworth-hubert".to_owned(),
+        name: "Hubert Farnsworth".to_owned(),
+        email: "<professor@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Err(AliasSearchError::EmailExists),
-        find_alias_in_file(
-            &Alias {
-                alias: "farnsworth-hubert".to_owned(),
-                name: "Hubert Farnsworth".to_owned(),
-                email: "<professor@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
 #[test]
-fn find_alias_in_file_alias_is_new() {
+fn alias_find_in_file_alias_is_new() {
+    let alias = Alias {
+        alias: "fry-philip".to_owned(),
+        name: "Philip Fry".to_owned(),
+        email: "<fry@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Err(AliasSearchError::NotFound),
-        find_alias_in_file(
-            &Alias {
-                alias: "fry-philip".to_owned(),
-                name: "Philip Fry".to_owned(),
-                email: "<fry@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
 #[test]
-fn find_alias_in_file_finds_a_match() {
+fn alias_find_in_file_finds_a_match() {
+    let alias = Alias {
+        alias: "farnsworth-hubert".to_owned(),
+        name: "Hubert Farnsworth".to_owned(),
+        email: "<goodnewseveryone@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Ok(vec![
             "farnsworth-hubert".to_owned(),
             "farnsworth-hubert-2".to_owned()
         ]),
-        find_alias_in_file(
-            &Alias {
-                alias: "farnsworth-hubert".to_owned(),
-                name: "Hubert Farnsworth".to_owned(),
-                email: "<goodnewseveryone@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
