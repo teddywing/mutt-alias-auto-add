@@ -1,3 +1,12 @@
+//! alias-auto-add
+//!
+//! Adds unique aliases to a Mutt alias file.
+//!
+//! Reads an email from STDIN and tries to add an alias for the from address
+//! listed. If the given alias already exists, a new unique alias is generated
+//! and used instead. This allows us to always capture an alias even if a
+//! person has multiple email addresses.
+
 use std::env;
 use std::io::{self, BufRead, Write};
 
