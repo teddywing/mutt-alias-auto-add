@@ -26,7 +26,7 @@ fn main() {
     let stdin = io::stdin();
 
     for line in stdin.lock().lines() {
-        let line = line.unwrap();
+        let line = line.expect("Error reading from STDIN");
 
         // Write the message to STDOUT so that it can be properly read by Mutt
         println!("{}", line);
