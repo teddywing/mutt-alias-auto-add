@@ -122,31 +122,55 @@ fn update_alias_id_increments_alias() {
 }
 
 
-#[test]
-fn alias_write_to_file_must_write_given_alias_to_file() {
-    let mut alias = update_alias_id_sample_alias();
-
+fn alias_write_to_file_helper<F>(alias: &mut Alias, filename: &str, f: F) -> String
+    where F: Fn(&Alias, &str) {
     // Create a new test file
-    let test_file = "./testdata/write_to_file";
-    fs::copy("./testdata/aliases", test_file).expect("Alias file copy failed");
+    let test_file = format!("./testdata/{}", filename);
+    fs::copy("./testdata/aliases", &test_file).expect("Alias file copy failed");
 
-    // Write a duplicate alias so that `write_to_file` is able to append a
-    // new one
-    let mut f = OpenOptions::new().append(true).open(test_file)
-        .expect("Failed to open test file for appending");
-    writeln!(f, "{}", Alias { email: "derpy@home.pv".to_owned(), .. alias.clone() }
-            .to_string())
-        .expect("Failed to append matching alias");
+    f(alias, &test_file);
 
     // Write our new alias to the file
-    alias.write_to_file(test_file).expect("`write_to_file` failed");
+    alias.write_to_file(&test_file).expect("`write_to_file` failed");
 
     // Get the file's contents for testing
-    let mut f = File::open(test_file).expect("Failed to open test file");
+    let mut f = File::open(&test_file).expect("Failed to open test file");
     let mut file_contents = String::new();
     f.read_to_string(&mut file_contents).expect("Failed to read test file contents");
     let file_contents: Vec<&str> = file_contents.split('\n').collect();
-    fs::remove_file(test_file).expect("Failed to delete test file");
+    fs::remove_file(&test_file).expect("Failed to delete test file");
 
-    assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
+    file_contents[file_contents.len() - 2].to_string()
+}
+
+#[test]
+fn alias_write_to_file_must_write_unique_alias_to_file_if_one_already_exists() {
+    let mut alias = update_alias_id_sample_alias();
+    let alias_line = alias_write_to_file_helper(
+        &mut alias,
+        "alias_write_to_file_must_write_unique_alias_to_file_if_one_already_exists",
+        |alias: &Alias, filename: &str| {
+            // Write a duplicate alias so that `write_to_file` is able to append a
+            // new one
+            let mut f = OpenOptions::new().append(true).open(filename)
+                .expect("Failed to open test file for appending");
+            writeln!(f, "{}", Alias { email: "derpy@home.pv".to_owned(), .. alias.clone() }
+                    .to_string())
+                .expect("Failed to append matching alias");
+        }
+    );
+
+    assert_eq!(alias.to_string(), alias_line);
+}
+
+#[test]
+#[allow(unused_variables)]
+fn alias_write_to_file_must_write_given_alias_to_file() {
+    let mut alias = update_alias_id_sample_alias();
+    let alias_line = alias_write_to_file_helper(
+        &mut alias,
+        "alias_write_to_file_must_write_given_alias_to_file",
+        |alias: &Alias, filename: &str| {});
+
+    assert_eq!(alias.to_string(), alias_line);
 }
