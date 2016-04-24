@@ -1,7 +1,7 @@
-use std::fs::{self, File};
-use std::io::Read;
+use std::fs::{self, File, OpenOptions};
+use std::io::{Read, Write};
 
-use super::{Alias, AliasSearchError, find_alias_in_file};
+use alias::{Alias, AliasSearchError};
 
 #[test]
 fn new_alias_with_only_email() {
@@ -45,50 +45,47 @@ fn new_alias_with_special_characters() {
 
 
 #[test]
-fn find_alias_in_file_email_already_exists() {
+fn alias_find_in_file_email_already_exists() {
+    let alias = Alias {
+        alias: "farnsworth-hubert".to_owned(),
+        name: "Hubert Farnsworth".to_owned(),
+        email: "<professor@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Err(AliasSearchError::EmailExists),
-        find_alias_in_file(
-            &Alias {
-                alias: "farnsworth-hubert".to_owned(),
-                name: "Hubert Farnsworth".to_owned(),
-                email: "<professor@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
 #[test]
-fn find_alias_in_file_alias_is_new() {
+fn alias_find_in_file_alias_is_new() {
+    let alias = Alias {
+        alias: "fry-philip".to_owned(),
+        name: "Philip Fry".to_owned(),
+        email: "<fry@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Err(AliasSearchError::NotFound),
-        find_alias_in_file(
-            &Alias {
-                alias: "fry-philip".to_owned(),
-                name: "Philip Fry".to_owned(),
-                email: "<fry@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
 #[test]
-fn find_alias_in_file_finds_a_match() {
+fn alias_find_in_file_finds_a_match() {
+    let alias = Alias {
+        alias: "farnsworth-hubert".to_owned(),
+        name: "Hubert Farnsworth".to_owned(),
+        email: "<goodnewseveryone@planetexpress.com>".to_owned()
+    };
+
     assert_eq!(
         Ok(vec![
             "farnsworth-hubert".to_owned(),
             "farnsworth-hubert-2".to_owned()
         ]),
-        find_alias_in_file(
-            &Alias {
-                alias: "farnsworth-hubert".to_owned(),
-                name: "Hubert Farnsworth".to_owned(),
-                email: "<goodnewseveryone@planetexpress.com>".to_owned()
-            },
-            "./testdata/aliases"
-        )
+        alias.find_in_file("./testdata/aliases")
     );
 }
 
@@ -127,17 +124,29 @@ fn update_alias_id_increments_alias() {
 
 #[test]
 fn alias_write_to_file_must_write_given_alias_to_file() {
-    let alias = update_alias_id_sample_alias();
+    let mut alias = update_alias_id_sample_alias();
 
+    // Create a new test file
     let test_file = "./testdata/write_to_file";
-    fs::copy("./testdata/aliases", test_file).unwrap();
-    alias.write_to_file(test_file).unwrap();
+    fs::copy("./testdata/aliases", test_file).expect("Alias file copy failed");
 
-    let mut f = File::open(test_file).unwrap();
+    // Write a duplicate alias so that `write_to_file` is able to append a
+    // new one
+    let mut f = OpenOptions::new().append(true).open(test_file)
+        .expect("Failed to open test file for appending");
+    writeln!(f, "{}", Alias { email: "derpy@home.pv".to_owned(), .. alias.clone() }
+            .to_string())
+        .expect("Failed to append matching alias");
+
+    // Write our new alias to the file
+    alias.write_to_file(test_file).expect("`write_to_file` failed");
+
+    // Get the file's contents for testing
+    let mut f = File::open(test_file).expect("Failed to open test file");
     let mut file_contents = String::new();
-    f.read_to_string(&mut file_contents).unwrap();
+    f.read_to_string(&mut file_contents).expect("Failed to read test file contents");
     let file_contents: Vec<&str> = file_contents.split('\n').collect();
-    fs::remove_file(test_file).unwrap();
+    fs::remove_file(test_file).expect("Failed to delete test file");
 
     assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
 }
