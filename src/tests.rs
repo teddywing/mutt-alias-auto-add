@@ -1,7 +1,7 @@
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 
-use super::{Alias, AliasSearchError};
+use alias::{Alias, AliasSearchError};
 
 #[test]
 fn new_alias_with_only_email() {
