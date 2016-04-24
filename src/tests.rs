@@ -144,7 +144,7 @@ fn alias_write_to_file_helper<F>(alias: &mut Alias, f: F) -> String
 }
 
 #[test]
-fn alias_write_to_file_must_write_given_alias_to_file() {
+fn alias_write_to_file_must_write_unique_alias_to_file_if_one_already_exists() {
     let mut alias = update_alias_id_sample_alias();
     let alias_line = alias_write_to_file_helper(&mut alias, |alias: &Alias, filename: &str| {
         // Write a duplicate alias so that `write_to_file` is able to append a
@@ -155,6 +155,17 @@ fn alias_write_to_file_must_write_given_alias_to_file() {
                 .to_string())
             .expect("Failed to append matching alias");
     });
+
+    assert_eq!(alias.to_string(), alias_line);
+}
+
+#[test]
+#[allow(unused_variables)]
+fn alias_write_to_file_must_write_given_alias_to_file() {
+    let mut alias = update_alias_id_sample_alias();
+    let alias_line = alias_write_to_file_helper(
+        &mut alias,
+        |alias: &Alias, filename: &str| {});
 
     assert_eq!(alias.to_string(), alias_line);
 }

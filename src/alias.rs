@@ -75,8 +75,11 @@ impl Alias {
     }
 
     pub fn write_to_file<P: AsRef<Path>>(&mut self, file: P) -> Result<(), AliasSearchError> {
-        let similar_aliases = try!(self.find_in_file(&file));
-        self.update_alias_id(similar_aliases);
+        match self.find_in_file(&file) {
+            Ok(similar_aliases) => self.update_alias_id(similar_aliases),
+            Err(AliasSearchError::NotFound) => {},
+            Err(e) => return Err(e),
+        };
 
         let mut f = try!(OpenOptions::new().append(true).open(file));
         try!(f.write_all(format!("{}\n", self.to_string()).as_bytes()));
