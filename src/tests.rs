@@ -1,5 +1,5 @@
-use std::fs::{self, File};
-use std::io::Read;
+use std::fs::{self, File, OpenOptions};
+use std::io::{Read, Write};
 
 use super::{Alias, AliasSearchError};
 
@@ -124,17 +124,29 @@ fn update_alias_id_increments_alias() {
 
 #[test]
 fn alias_write_to_file_must_write_given_alias_to_file() {
-    let alias = update_alias_id_sample_alias();
+    let mut alias = update_alias_id_sample_alias();
 
+    // Create a new test file
     let test_file = "./testdata/write_to_file";
-    fs::copy("./testdata/aliases", test_file).unwrap();
-    alias.write_to_file(test_file).unwrap();
+    fs::copy("./testdata/aliases", test_file).expect("Alias file copy failed");
 
-    let mut f = File::open(test_file).unwrap();
+    // Write a duplicate alias so that `write_to_file` is able to append a
+    // new one
+    let mut f = OpenOptions::new().append(true).open(test_file)
+        .expect("Failed to open test file for appending");
+    writeln!(f, "{}", Alias { email: "derpy@home.pv".to_owned(), .. alias.clone() }
+            .to_string())
+        .expect("Failed to append matching alias");
+
+    // Write our new alias to the file
+    alias.write_to_file(test_file).expect("`write_to_file` failed");
+
+    // Get the file's contents for testing
+    let mut f = File::open(test_file).expect("Failed to open test file");
     let mut file_contents = String::new();
-    f.read_to_string(&mut file_contents).unwrap();
+    f.read_to_string(&mut file_contents).expect("Failed to read test file contents");
     let file_contents: Vec<&str> = file_contents.split('\n').collect();
-    fs::remove_file(test_file).unwrap();
+    fs::remove_file(test_file).expect("Failed to delete test file");
 
     assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
 }

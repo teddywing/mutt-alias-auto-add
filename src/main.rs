@@ -8,6 +8,7 @@ use std::path::Path;
 #[cfg(test)]
 mod tests;
 
+#[derive(Clone)]
 struct Alias {
     alias: String,
     name: String,
@@ -77,9 +78,13 @@ impl Alias {
         }
     }
 
-    fn write_to_file<P: AsRef<Path>>(&self, file: P) -> Result<(), io::Error> {
+    fn write_to_file<P: AsRef<Path>>(&mut self, file: P) -> Result<(), AliasSearchError> {
+        let similar_aliases = try!(self.find_in_file(&file));
+        self.update_alias_id(similar_aliases);
+
         let mut f = try!(OpenOptions::new().append(true).open(file));
         try!(f.write_all(format!("{}\n", self.to_string()).as_bytes()));
+
         Ok(())
     }
 
@@ -88,14 +93,6 @@ impl Alias {
             self.alias = format!("{}-{}", self.alias, similar_aliases.len() + 1);
         }
     }
-}
-
-fn write_alias<P: AsRef<Path>>(from: String, file: P) -> Result<(), AliasSearchError> {
-    let mut alias = Alias::new(&from);
-    let similar_aliases = try!(alias.find_in_file(&file));
-    alias.update_alias_id(similar_aliases);
-    try!(alias.write_to_file(&file));
-    Ok(())
 }
 
 #[derive(Debug)]
@@ -182,7 +179,8 @@ fn main() {
         println!("{}", line);
 
         if line.starts_with("From: ") {
-            match write_alias(line, &file) {
+            let mut alias = Alias::new(&line);
+            match alias.write_to_file(&file) {
                 Ok(_)  => continue,
                 Err(e @ AliasSearchError::NotFound) | Err(e @ AliasSearchError::EmailExists) =>
                     io::stderr().write(e.to_string().as_bytes()).ok(),
