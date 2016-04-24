@@ -122,10 +122,7 @@ fn update_alias_id_increments_alias() {
 }
 
 
-#[test]
-fn alias_write_to_file_must_write_given_alias_to_file() {
-    let mut alias = update_alias_id_sample_alias();
-
+fn alias_write_to_file_helper(alias: &mut Alias) -> String {
     // Create a new test file
     let test_file = "./testdata/write_to_file";
     fs::copy("./testdata/aliases", test_file).expect("Alias file copy failed");
@@ -148,5 +145,13 @@ fn alias_write_to_file_must_write_given_alias_to_file() {
     let file_contents: Vec<&str> = file_contents.split('\n').collect();
     fs::remove_file(test_file).expect("Failed to delete test file");
 
-    assert_eq!(alias.to_string(), file_contents[file_contents.len() - 2]);
+    file_contents[file_contents.len() - 2].to_string()
+}
+
+#[test]
+fn alias_write_to_file_must_write_given_alias_to_file() {
+    let mut alias = update_alias_id_sample_alias();
+    let alias_line = alias_write_to_file_helper(&mut alias);
+
+    assert_eq!(alias.to_string(), alias_line);
 }
