@@ -32,7 +32,7 @@ For other platforms, you'll need the [Rust][2] compiler.
    `.muttrc`, specifying the location of your Mutt aliases file as an argument
    to `alias-auto-add`:
 
-		set display_filter = /usr/local/alias-auto-add ~/.mutt/aliases
+		set display_filter = '/usr/local/bin/alias-auto-add ~/.mutt/aliases'
 
 
 ## Uninstall
