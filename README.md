@@ -40,6 +40,16 @@ For other platforms, you'll need the [Rust][2] compiler.
 	$ cargo uninstall --root /usr/local alias-auto-add
 
 
+## Testing
+Unit tests:
+
+	$ cargo test
+
+Integration test:
+
+	$ make
+
+
 ## License
 Copyright © 2016 Teddy Wing. Licensed under the GNU GPL (see the included
 COPYING file).
