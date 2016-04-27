@@ -54,8 +54,9 @@ impl Alias {
         let mut matches = Vec::new();
         let f = try!(File::open(file));
         let file = BufReader::new(&f);
-        for line in file.lines() {
+        for line in file.split(b'\n') {
             let line = try!(line);
+            let line = latin1_to_string(line);
             let split: Vec<&str> = line.split_whitespace().collect();
 
             if line.contains(&self.email) {
@@ -92,6 +93,10 @@ impl Alias {
             self.alias = format!("{}-{}", self.alias, similar_aliases.len() + 1);
         }
     }
+}
+
+fn latin1_to_string(s: Vec<u8>) -> String {
+    s.iter().map(|c| c.clone() as char).collect()
 }
 
 #[derive(Debug)]
