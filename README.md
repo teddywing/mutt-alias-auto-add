@@ -26,7 +26,7 @@ For other platforms, you'll need the [Rust][2] compiler.
 
 1. Install with `cargo`:
 
-		$ cargo install --git https://github.com/teddywing/alias-auto-add.git --root /usr/local
+		$ cargo install --git https://github.com/teddywing/mutt-alias-auto-add.git --root /usr/local
 
 2. Add the program as a Mutt display filter. Add the following line to your
    `.muttrc`, specifying the location of your Mutt aliases file as an argument
@@ -45,5 +45,5 @@ Copyright © 2016 Teddy Wing. Licensed under the GNU GPL (see the included
 COPYING file).
 
 
-[1]: https://github.com/teddywing/alias-auto-add/releases
+[1]: https://github.com/teddywing/mutt-alias-auto-add/releases
 [2]: https://www.rust-lang.org/
