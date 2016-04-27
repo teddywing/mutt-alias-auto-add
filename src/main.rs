@@ -8,7 +8,7 @@
 //! person has multiple email addresses.
 
 use std::env;
-use std::io::{self, BufRead, Write};
+use std::io::{self, BufRead};
 
 mod alias;
 
@@ -42,12 +42,7 @@ fn main() {
 
         if line.starts_with("From: ") {
             let mut alias = Alias::new(&line);
-            match alias.write_to_file(&file) {
-                Ok(_)  => continue,
-                Err(e @ AliasSearchError::NotFound) | Err(e @ AliasSearchError::EmailExists) =>
-                    io::stderr().write(e.to_string().as_bytes()).ok(),
-                Err(e) => io::stderr().write(e.to_string().as_bytes()).ok(),
-            };
+            alias.write_to_file(&file).ok();
         }
     }
 }
